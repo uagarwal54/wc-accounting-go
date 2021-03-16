@@ -19,17 +19,21 @@ const (
 	env            = "dev"
 )
 
+type (
+		LoginResp struct{
+			Message string
+			StatusCode int
+			FirstLogin string 
+		}
+)
+
 func main() {
 	fmt.Println("My Simple Server")
 	handleRequests()
 }
 
-type ErrorResponse struct {
-	errMsg string
-}
-
 func login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ovnpwnv")
+	fmt.Println("Login Attempt")
 	var bodyData []byte
 	var err error
 	var userCredMap map[string]string
@@ -39,25 +43,25 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 	json.Unmarshal(bodyData, &userCredMap)
 	var user model.User
+	w.Header().Set("Content-Type", "application/json")
+	var loginResp LoginResp
 	if user, err = model.ReadUserDataWithUsernamePassword(userCredMap["Username"], userCredMap["Password"]); err != nil {
-		var errorData ErrorResponse
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		errorData.errMsg = "User Not Found"
-		json.NewEncoder(w).Encode(errorData)
+		loginResp.StatusCode = http.StatusNotFound
+		loginResp.Message = "User not found"
+		loginResp.FirstLogin = ""
 		fmt.Println(err)
-		return
 	}
 	if (user != model.User{}) {
 		fmt.Println("User Found")
-		w.WriteHeader(http.StatusOK)
-		if user.FirstLogin {
-			w.Header().Set("FirstLogin", "True")
+		loginResp.StatusCode = http.StatusOK
+		loginResp.Message = fmt.Sprintf("Welcome %s",user.UserName)
+		if user.FirstLogin == 1{
+			loginResp.FirstLogin = "True"
 		} else {
-			w.Header().Set("FirstLogin", "False")
+			loginResp.FirstLogin = "False"
 		}
-		w.Write([]byte(fmt.Sprintf("Welcome %s", user.UserName)))
 	}
+	json.NewEncoder(w).Encode(loginResp)
 }
 
 func handleRequests() {

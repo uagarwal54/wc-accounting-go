@@ -13,7 +13,7 @@ type (
 		UserName         string    `orm:"column(userName)"`
 		RegistrationDate time.Time `orm:"column(registrationDate)"`
 		Password         string    `orm:"column(password)"`
-		FirstLogin       bool      `orm:"column(firstLogin)"`
+		FirstLogin       int      `orm:"column(firstLogin)"`
 	}
 )
 
