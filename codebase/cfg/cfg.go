@@ -17,7 +17,7 @@ type (
 		DBRootPassword string `json:"dbRootPassword"`
 		DBName         string `json:"dbName"`
 		DBHost         string `json:"dbHost"`
-		Port           string `json:"port"`
+		Port           int `json:"port"`
 	}
 )
 
