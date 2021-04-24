@@ -31,7 +31,6 @@ func createTables(configs *cfg.Configs){
 		fmt.Println(err)
 		return
 	}
-	db.Close()
 	mysqlUri = mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, configs.Dev.Mysql.DBName)
 	db, err = sql.Open("mysql", mysqlUri)
 	for _, query := range createTableQueries{
@@ -40,6 +39,7 @@ func createTables(configs *cfg.Configs){
 			fmt.Println(err)
 		}
 	}
+	return
 }
 
 // Construct a mysql protocol URI. The <dbname> parameter should be empty string when creating/dropping databases.

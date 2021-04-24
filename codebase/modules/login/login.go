@@ -4,7 +4,7 @@ import(
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
-
+	"net/http"
 	"wc-accounting-go/codebase/model"
 )
 
@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	w.Header().Set("Content-Type", "application/json")
 	var loginResp LoginResp
-	if user, err = model.ReadUserDataWithUsernamePassword(userCredMap["Username"], userCredMap["Password"]); err != nil {
+	if user, err = model.ReadUserDataWithUsernamePassword(userCredMap["username"], userCredMap["password"]); err != nil {
 		loginResp.StatusCode = http.StatusNotFound
 		loginResp.Message = "User not found"
 		loginResp.FirstLogin = ""
