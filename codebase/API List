@@ -1,0 +1,11 @@
+/login -done
+/purchase -In Progress
+/addItem
+/remItem
+/updateItem
+/viewItems
+/sale
+/order
+/inventory
+/expense
+/genPayslip
