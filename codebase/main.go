@@ -38,6 +38,6 @@ func handleRequests() {
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 
-	router.HandleFunc("/login", login.Login)
+	login.AddLoginRoute(router)
 	log.Fatal(http.ListenAndServe(":9001", handlers.CORS(headers, methods, origins)(router)))
 }

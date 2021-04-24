@@ -5,6 +5,9 @@ import(
 	"io/ioutil"
 	"encoding/json"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	
 	"wc-accounting-go/codebase/model"
 )
 
@@ -16,7 +19,7 @@ type (
 	}
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login Attempt")
 	var bodyData []byte
 	var err error
@@ -46,4 +49,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	json.NewEncoder(w).Encode(loginResp)
+}
+
+func AddLoginRoute(router *mux.Router){
+	router.HandleFunc("/login", login)
 }
