@@ -8,12 +8,12 @@ import (
 
 type (
 	User struct {
-		SrNum            int       `orm:"column(srNum);pk"`
-		UserId           string    `orm:"column(userId)"`
-		UserName         string    `orm:"column(userName)"`
-		RegistrationDate time.Time `orm:"column(registrationDate)"`
-		Password         string    `orm:"column(password)"`
-		FirstLogin       int      `orm:"column(firstLogin)"`
+		SrNum            int       `orm:"column(srNum);pk" json:"srnum,omitempty"`
+		UserId           string    `orm:"column(userId)" json:"userid,omitempty"`
+		UserName         string    `orm:"column(userName)" json:"username"`
+		RegistrationDate time.Time `orm:"column(registrationDate)" json:"registrationdate,omitempty"`
+		Password         string    `orm:"column(password)" json:"password"`
+		FirstLogin       int      `orm:"column(firstLogin)" json:"firstlogin,omitempty"`
 	}
 )
 

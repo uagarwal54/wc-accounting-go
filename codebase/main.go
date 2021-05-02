@@ -11,6 +11,7 @@ import (
 	"wc-accounting-go/codebase/cfg"
 	"wc-accounting-go/codebase/model"
 	"wc-accounting-go/codebase/modules/login"
+	"wc-accounting-go/codebase/modules/items"
 )
 
 const (
@@ -39,5 +40,6 @@ func handleRequests() {
 	origins := handlers.AllowedOrigins([]string{"*"})
 
 	login.AddLoginRoute(router)
+	items.AddItemRoutes(router)
 	log.Fatal(http.ListenAndServe(":9001", handlers.CORS(headers, methods, origins)(router)))
 }

@@ -22,6 +22,11 @@ var createTableQueries = []string{
 		itemName varchar(30),
 		itemCategory varchar(30));`,
 	
+	`create table IF NOT EXISTS itemCategory ( 
+		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
+		categoryId varchar(30),
+		categoryName varchar(30));`,
+	
 	`create table IF NOT EXISTS purchase ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
 		purchaseId varchar(30),

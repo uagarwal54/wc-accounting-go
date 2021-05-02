@@ -1,9 +1,9 @@
 /login -done
-/purchase -In Progress
-/addItem
-/remItem
-/updateItem
-/viewItems
+/purchase -On Hold
+/addItem    ------|
+/remItem          |
+/updateItem       | ----- In Progress
+/viewItems  ------|
 /sale
 /order
 /inventory
