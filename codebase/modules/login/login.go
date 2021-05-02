@@ -1,21 +1,21 @@
 package login
 
-import(
+import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	
+
 	"wc-accounting-go/codebase/model"
 )
 
 type (
-	LoginResp struct{
-		Message string
+	LoginResp struct {
+		Message    string
 		StatusCode int
-		FirstLogin string 
+		FirstLogin string
 	}
 )
 
@@ -29,7 +29,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.Unmarshal(bodyData, &user)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	var loginResp LoginResp
 	if user, err = model.ReadUserDataWithUsernamePassword(user.UserName, user.Password); err != nil {
@@ -41,8 +41,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if (user != model.User{}) {
 		fmt.Println("User Found")
 		loginResp.StatusCode = http.StatusOK
-		loginResp.Message = fmt.Sprintf("Welcome %s",user.UserName)
-		if user.FirstLogin == 1{
+		loginResp.Message = fmt.Sprintf("Welcome %s", user.UserName)
+		if user.FirstLogin == 1 {
 			loginResp.FirstLogin = "True"
 		} else {
 			loginResp.FirstLogin = "False"
@@ -51,6 +51,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(loginResp)
 }
 
-func AddLoginRoute(router *mux.Router){
+func AddLoginRoute(router *mux.Router) {
 	router.HandleFunc("/login", login)
 }

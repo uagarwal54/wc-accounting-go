@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 
 	"wc-accounting-go/codebase/cfg"
 
@@ -20,20 +20,19 @@ func DbConnect(configs *cfg.Configs, env string) {
 	orm.RegisterDataBase("default", "mysql", connString)
 }
 
-
-func createTables(configs *cfg.Configs){
+func createTables(configs *cfg.Configs) {
 	var err error
 	createdbStmt := "CREATE DATABASE IF NOT EXISTS wecare;"
 	mysqlUri := mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, "")
 	db, err := sql.Open("mysql", mysqlUri)
 	defer db.Close()
-	if _, err = db.Exec(createdbStmt); err != nil{
+	if _, err = db.Exec(createdbStmt); err != nil {
 		fmt.Println(err)
 		return
 	}
 	mysqlUri = mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, configs.Dev.Mysql.DBName)
 	db, err = sql.Open("mysql", mysqlUri)
-	for _, query := range createTableQueries{
+	for _, query := range createTableQueries {
 		_, err = db.Exec(query)
 		if err != nil {
 			fmt.Println(err)
