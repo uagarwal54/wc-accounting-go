@@ -6,6 +6,8 @@
             "dbName": "wecare",
             "dbHost": "127.0.0.1",
             "port": 3306
-        }
+        },
+        "item_name":"itemName",
+        "item_category":"itemCategory"
     }
 }

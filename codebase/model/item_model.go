@@ -22,26 +22,24 @@ func init() {
 	orm.RegisterModel(new(Item))
 }
 
-func (items *Item) ReadAllItemData() (err error) {
+func (items *Items) ReadAllItemData() (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("Item").All(&items)
-	return
-}
-
-// There may be multiple items with the same name
-func (item *Item) ReadItemByName() (err error) {
-	// orm.Debug = true
-	o := orm.NewOrm()
-	var i []*Item
-	_, err = o.QueryTable("item").Filter("itemName", item.ItemName).All(&i)
+	_, err = o.QueryTable("Item").All(&items.ItemList)
 	return
 }
 
 // Fetch all the items in a given category
-func (items *Item) ReadAllItemsInACategory(categoryName string) (err error) {
-	var i []*Item
+func (items *Items) ReadAllItemsInACategory(categoryId int) (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("item").Filter("itemCategory", categoryName).All(&i)
+	_, err = o.QueryTable("item").Filter("itemCategory", categoryId).All(&items)
+	return
+}
+
+// item name is a unique value
+func (ItemInst *Item) ReadItemByName() (err error) {
+	// orm.Debug = true
+	o := orm.NewOrm()
+	err = o.QueryTable("item").Filter("itemName", ItemInst.ItemName).One(ItemInst)
 	return
 }
 
@@ -60,7 +58,7 @@ func CountItemRows() (numOfRows int, err error) {
 }
 
 // Insert record(s) into the item table
-func (items Items) InsertIntoItem() (err error) {
+func (items *Items) InsertIntoItem() (err error) {
 	o := orm.NewOrm()
 	// The 1st param is the number of records to insert in one bulk statement. The 2nd param is models slice.
 	_, err = o.InsertMulti(10, items.ItemList)

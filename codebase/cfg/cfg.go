@@ -10,7 +10,9 @@ type (
 		Dev DevConfigs `json:"dev"`
 	}
 	DevConfigs struct {
-		Mysql MysqlConfigs `json:"mysql"`
+		Mysql        MysqlConfigs `json:"mysql"`
+		ItemName     string       `json:"item_name"`
+		ItemCategory string       `json:"item_category"`
 	}
 	MysqlConfigs struct {
 		DBRootUser     string `json:"dbRootUser"`
@@ -20,6 +22,8 @@ type (
 		Port           int    `json:"port"`
 	}
 )
+
+var ConfigInst Configs
 
 func GetConfigs(configFilePath string) (cfg Configs, err error) {
 	var CfgData []byte

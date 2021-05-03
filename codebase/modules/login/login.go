@@ -21,6 +21,15 @@ type (
 
 func login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login Attempt")
+	var loginResp LoginResp
+	if r.Method != http.MethodPost {
+		fmt.Println("Login attempt with the wrong request method: ",r.Method)
+		loginResp.StatusCode = http.StatusMethodNotAllowed
+		loginResp.Message = "The method used for the request is not allowed"
+		loginResp.FirstLogin = ""
+		json.NewEncoder(w).Encode(loginResp)
+		return
+	}
 	var bodyData []byte
 	var err error
 	var user model.User
@@ -31,7 +40,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(bodyData, &user)
 
 	w.Header().Set("Content-Type", "application/json")
-	var loginResp LoginResp
+	
 	if user, err = model.ReadUserDataWithUsernamePassword(user.UserName, user.Password); err != nil {
 		loginResp.StatusCode = http.StatusNotFound
 		loginResp.Message = "User not found"

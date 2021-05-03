@@ -25,13 +25,12 @@ func main() {
 }
 
 func handleRequests() {
-	var configs cfg.Configs
 	var err error
-	if configs, err = cfg.GetConfigs(configFilePath); err != nil {
+	if cfg.ConfigInst, err = cfg.GetConfigs(configFilePath); err != nil {
 		fmt.Println(err)
 		return
 	}
-	model.DbConnect(&configs, env)
+	model.DbConnect(&cfg.ConfigInst, env)
 	router := mux.NewRouter()
 
 	// The headers, methods and domains from with/from which the requests can be accepted
