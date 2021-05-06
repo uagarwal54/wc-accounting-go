@@ -16,18 +16,13 @@ import (
 )
 
 type (
-	// addItemResp is the struct used in all the add item requests' response
-	addItemResp struct {
+	// itemResponseToBeSent is the struct used in all the add item requests' response
+	itemResponseToBeSent struct {
 		Message    string
 		ItemStatus []itemResponse
 		StatusCode int
 	}
-	// fetchItemResponse is the struct used in all the fetch item requests' response
-	fetchItemResponse struct {
-		Message    string
-		Items      []itemResponse
-		StatusCode int
-	}
+
 	// itemResponse is the struct that has the fields that are returned to the user
 	//so that only the desired fields are exposed to the user
 	itemResponse struct {
@@ -48,7 +43,7 @@ func addMultipleItemsInItemAtOnce(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	var numberOfRows int
-	var addItemRespInst addItemResp
+	var addItemRespInst itemResponseToBeSent
 	var finalItemList model.Items
 
 	numberOfRows, err = model.CountItemRows()
@@ -105,7 +100,7 @@ func storeMultipleItemsWithSingleInsertForEachItem(w http.ResponseWriter, r *htt
 	if err = json.Unmarshal(readRequestData(w, r), &IList); err != nil {
 		fmt.Println(err)
 	}
-	var addItemRespInst addItemResp
+	var addItemRespInst itemResponseToBeSent
 	for _, item := range IList.ItemList {
 		var itemRespInst itemResponse
 		itemRespInst.ItemName = item.ItemName
@@ -137,7 +132,7 @@ func storeSingleItem(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(readRequestData(w, r), &inputItem); err != nil {
 		fmt.Println(err)
 	}
-	var addItemRespInst addItemResp
+	var addItemRespInst itemResponseToBeSent
 	var itemRespInst itemResponse
 	itemRespInst.ItemName = inputItem.ItemName
 	itemRespInst.ItemCategory = inputItem.ItemCategory
@@ -164,7 +159,7 @@ func storeSingleItem(w http.ResponseWriter, r *http.Request) {
 func fetchItems(w http.ResponseWriter, r *http.Request) {
 	var fetchRequestData map[string]interface{}
 	json.Unmarshal(readRequestData(w, r), &fetchRequestData)
-	var fetchItemResponseInst fetchItemResponse
+	var fetchItemResponseInst itemResponseToBeSent
 	var itemResponseList []itemResponse
 
 	if _, found := fetchRequestData[cfg.ConfigInst.Dev.ItemName]; found {
@@ -205,19 +200,24 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if _, found := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]; found {
 		fetchItemResponseInst.Message = "Processed the request using the item category"
-		// desiredCategory := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]
-		// var fetchedItemList *model.Items
-		// if err := fetchedItemList.ReadAllItemsInACategory(); err != nil{
-		// 	fmt.Println(err)
-
-		// 	json.NewEncoder(w).Encode(fetchItemResponseInst)
-		// }
+		desiredCategory := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]
+		fetchedItemList := &model.Items{}
+		if err := fetchedItemList.ReadAllItemsInACategory(int(desiredCategory.(float64))); err != nil{
+			fmt.Println(err)
+			fetchItemResponseInst.Message = "Something went wrong: " + err.Error()
+			fetchItemResponseInst.StatusCode = http.StatusInternalServerError
+			json.NewEncoder(w).Encode(fetchItemResponseInst)
+			return
+		}
+		for _, fetchedItem := range fetchedItemList.ItemList{
+			populateResponseItemList(&itemResponseList, &fetchedItem, "Item Found")
+		}
 	} else {
 		fetchItemResponseInst.Message = "Passed wrong json key in JSON request"
 		fetchItemResponseInst.StatusCode = http.StatusBadRequest
 	}
 	fetchItemResponseInst.StatusCode = http.StatusOK
-	fetchItemResponseInst.Items = itemResponseList
+	fetchItemResponseInst.ItemStatus = itemResponseList
 	json.NewEncoder(w).Encode(fetchItemResponseInst)
 }
 

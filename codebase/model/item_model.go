@@ -29,9 +29,10 @@ func (items *Items) ReadAllItemData() (err error) {
 }
 
 // Fetch all the items in a given category
-func (items *Items) ReadAllItemsInACategory(categoryId int) (err error) {
+func (items *Items) ReadAllItemsInACategory(CategoryId int) (err error) {
+	// orm.Debug = true
 	o := orm.NewOrm()
-	_, err = o.QueryTable("item").Filter("itemCategory", categoryId).All(&items)
+	_, err = o.QueryTable("item").Filter("itemCategory", CategoryId).All(&items.ItemList)
 	return
 }
 
