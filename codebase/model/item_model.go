@@ -57,11 +57,18 @@ func CountItemRows() (numOfRows int, err error) {
 	return
 }
 
-// Insert record(s) into the item table
-func (items *Items) InsertIntoItem() (err error) {
+// Insert multiple records into the item table at once
+func (items *Items) InsertRecordsIntoItem() (err error) {
 	o := orm.NewOrm()
 	// The 1st param is the number of records to insert in one bulk statement. The 2nd param is models slice.
 	_, err = o.InsertMulti(10, items.ItemList)
+	return
+}
+
+// Insert single record into the item table at once
+func (item *Item) InsertRecordIntoItem() (err error) {
+	o := orm.NewOrm()
+	_, err = o.Insert(item)
 	return
 }
 
