@@ -202,14 +202,14 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 		fetchItemResponseInst.Message = "Processed the request using the item category"
 		desiredCategory := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]
 		fetchedItemList := &model.Items{}
-		if err := fetchedItemList.ReadAllItemsInACategory(int(desiredCategory.(float64))); err != nil{
+		if err := fetchedItemList.ReadAllItemsInACategory(int(desiredCategory.(float64))); err != nil {
 			fmt.Println(err)
 			fetchItemResponseInst.Message = "Something went wrong: " + err.Error()
 			fetchItemResponseInst.StatusCode = http.StatusInternalServerError
 			json.NewEncoder(w).Encode(fetchItemResponseInst)
 			return
 		}
-		for _, fetchedItem := range fetchedItemList.ItemList{
+		for _, fetchedItem := range fetchedItemList.ItemList {
 			populateResponseItemList(&itemResponseList, &fetchedItem, "Item Found")
 		}
 	} else {
@@ -221,15 +221,14 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(fetchItemResponseInst)
 }
 
-
-func updateItems(w http.ResponseWriter, r *http.Request){
+func updateItems(w http.ResponseWriter, r *http.Request) {
 	var IList model.Items
 	var err error
 	if err = json.Unmarshal(readRequestData(w, r), &IList); err != nil {
 		fmt.Println(err)
 	}
 	var addItemRespInst itemResponseToBeSent
-	for _, item := range IList.ItemList{
+	for _, item := range IList.ItemList {
 		itemPtr := &item
 		var itemResponseInst itemResponse
 		itemResponseInst.ItemName = item.ItemName
@@ -237,19 +236,18 @@ func updateItems(w http.ResponseWriter, r *http.Request){
 		itemResponseInst.ItemCategory = item.ItemCategory
 		itemResponseInst.Message = "Item is updated successfully"
 
-		if err = itemPtr.UpdateRecord(); err != nil{
-			fmt.Println("Error occoured while updating item: ",item)
+		if err = itemPtr.UpdateRecord(); err != nil {
+			fmt.Println("Error occoured while updating item: ", item)
 			fmt.Println(err)
 			itemResponseInst.Message = "Item failed to be updated. Please check the data provided. Error: " + err.Error()
 		}
-		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemResponseInst)	
+		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemResponseInst)
 	}
 	addItemRespInst.StatusCode = http.StatusOK
 	json.NewEncoder(w).Encode(addItemRespInst)
 }
 
-
-func deleteItem(w http.ResponseWriter, r *http.Request){
+func deleteItem(w http.ResponseWriter, r *http.Request) {
 	var inputItem model.Item
 	var err error
 	if err = json.Unmarshal(readRequestData(w, r), &inputItem); err != nil {
@@ -258,12 +256,12 @@ func deleteItem(w http.ResponseWriter, r *http.Request){
 	var itemResponseInst itemResponse
 	itemResponseInst.ItemId = inputItem.ItemId
 	itemResponseInst.Message = "Item with the above id has been deleted"
-	if err = inputItem.DeleteRecords(); err != nil{
+	if err = inputItem.DeleteRecords(); err != nil {
 		fmt.Println(err)
 		itemResponseInst.Message = "Some problem occoured while deleting the item. Error: " + err.Error()
 	}
 	json.NewEncoder(w).Encode(itemResponseInst)
-} 
+}
 
 func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
 	var err error
@@ -281,9 +279,9 @@ func decideOp(w http.ResponseWriter, r *http.Request) {
 		// Unused function
 		addMultipleItemsInItemAtOnce(w, r)
 	} else if r.Method == http.MethodPut {
-		updateItems(w,r)
+		updateItems(w, r)
 	} else if r.Method == http.MethodDelete {
-		deleteItem(w,r)
+		deleteItem(w, r)
 	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt/storeItem" {
 		// store single item
 		storeSingleItem(w, r)
