@@ -221,6 +221,34 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(fetchItemResponseInst)
 }
 
+
+func updateItems(w http.ResponseWriter, r *http.Request){
+	var IList model.Items
+	var err error
+	if err = json.Unmarshal(readRequestData(w, r), &IList); err != nil {
+		fmt.Println(err)
+	}
+	var addItemRespInst itemResponseToBeSent
+	for _, item := range IList.ItemList{
+		itemPtr := &item
+		var itemResponseInst itemResponse
+		itemResponseInst.ItemName = item.ItemName
+		itemResponseInst.ItemId = item.ItemId
+		itemResponseInst.ItemCategory = item.ItemCategory
+		itemResponseInst.Message = "Item is updated successfully"
+
+		if err = itemPtr.UpdateRecord(); err != nil{
+			fmt.Println("Error occoured while updating item: ",item)
+			fmt.Println(err)
+			itemResponseInst.Message = "Item failed to be updated. Please check the data provided. Error: " + err.Error()
+		}
+		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemResponseInst)	
+	}
+	addItemRespInst.StatusCode = http.StatusOK
+	json.NewEncoder(w).Encode(addItemRespInst)
+}
+
+
 func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
 	var err error
 	if bodyData, err = ioutil.ReadAll(r.Body); err != nil {
@@ -237,7 +265,7 @@ func decideOp(w http.ResponseWriter, r *http.Request) {
 		// Unused function
 		addMultipleItemsInItemAtOnce(w, r)
 	} else if r.Method == http.MethodPut {
-		// Call the item update method
+		updateItems(w,r)
 	} else if r.Method == http.MethodDelete {
 		// Call the method to delete the item
 	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt/storeItem" {

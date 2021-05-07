@@ -75,8 +75,13 @@ func (item *Item) InsertRecordIntoItem() (err error) {
 
 // Update Item Record
 func (item *Item) UpdateRecord() (err error) {
+	// orm.Debug = true
+	var tempItem Item
+	tempItem.ItemName = item.ItemName
+	tempItem.ItemId = item.ItemId
 	o := orm.NewOrm()
-	if o.Read(item) == nil {
+	if o.Read(&tempItem, "itemId") == nil || o.Read(&tempItem, "itemName") == nil {
+		item.SrNum = tempItem.SrNum
 		_, err = o.Update(item)
 	}
 	return
