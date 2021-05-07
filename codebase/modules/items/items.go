@@ -249,6 +249,22 @@ func updateItems(w http.ResponseWriter, r *http.Request){
 }
 
 
+func deleteItem(w http.ResponseWriter, r *http.Request){
+	var inputItem model.Item
+	var err error
+	if err = json.Unmarshal(readRequestData(w, r), &inputItem); err != nil {
+		fmt.Println(err)
+	}
+	var itemResponseInst itemResponse
+	itemResponseInst.ItemId = inputItem.ItemId
+	itemResponseInst.Message = "Item with the above id has been deleted"
+	if err = inputItem.DeleteRecords(); err != nil{
+		fmt.Println(err)
+		itemResponseInst.Message = "Some problem occoured while deleting the item. Error: " + err.Error()
+	}
+	json.NewEncoder(w).Encode(itemResponseInst)
+} 
+
 func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
 	var err error
 	if bodyData, err = ioutil.ReadAll(r.Body); err != nil {
@@ -267,7 +283,7 @@ func decideOp(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == http.MethodPut {
 		updateItems(w,r)
 	} else if r.Method == http.MethodDelete {
-		// Call the method to delete the item
+		deleteItem(w,r)
 	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt/storeItem" {
 		// store single item
 		storeSingleItem(w, r)

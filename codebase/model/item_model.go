@@ -88,12 +88,9 @@ func (item *Item) UpdateRecord() (err error) {
 }
 
 func (item *Item) DeleteRecords() (err error) {
+	// orm.Debug = true
 	o := orm.NewOrm()
-	var errSlice map[string]string
 	fmt.Println("Deleting the record with item id: ", item.ItemId)
-	if _, err = o.Delete(item); err != nil {
-		errSlice[item.ItemId] = err.Error()
-	}
-
+	_, err = o.QueryTable("item").Filter("itemid", item.ItemId).Delete()
 	return
 }
