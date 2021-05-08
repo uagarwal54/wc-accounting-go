@@ -1,0 +1,35 @@
+version: '2.1'
+
+services:
+  ndb1:
+    build: dev_docker_image
+    image: mysql-cluster
+    container_name: ndb1
+    command: ndbd
+
+  ndb2:
+    image: mysql-cluster
+    container_name: ndb2
+    command: ndbd
+
+  mgmt1:
+    image: mysql-cluster
+    container_name: mgmt1
+    command: ndb_mgmd
+    depends_on:
+      - ndb1
+      - ndb2
+
+  mysql1:
+    image: mysql-cluster
+    container_name: mysql1
+    command: mysqld
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_ROOT_HOST=%
+    depends_on:
+      - ndb1
+      - ndb2
+      - mgmt1

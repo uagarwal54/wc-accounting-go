@@ -13,8 +13,8 @@ var createTableQueries = []string{
 
 	`create table IF NOT EXISTS config ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
-		configKey varchar(30),
-		configValue  varchar(30));`,
+		configKey varchar(300),
+		configValue  varchar(300));`,
 
 	`create table IF NOT EXISTS item ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,

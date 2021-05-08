@@ -24,7 +24,7 @@ func init() {
 
 func (items *Items) ReadAllItemData() (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("Item").All(&items.ItemList)
+	_, err = o.QueryTable("item").All(&items.ItemList)
 	return
 }
 

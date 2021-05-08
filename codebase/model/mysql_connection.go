@@ -10,28 +10,28 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func DbConnect(configs *cfg.Configs, env string) {
-	var connString string
-	createTables(configs)
+func DbConnect(env string) {
+	var connStringWithDB, connStringWithoutDB string
 	if env == "dev" {
-		connString = mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, configs.Dev.Mysql.DBName)
+		// For each env type, these both types of connString needs to be made
+		connStringWithoutDB = mysqlDriverURI(cfg.ConfigInst.Dev.Mysql.DBRootUser, cfg.ConfigInst.Dev.Mysql.DBHost, cfg.ConfigInst.Dev.Mysql.DBRootPassword, cfg.ConfigInst.Dev.Mysql.Port, "")
+		connStringWithDB = mysqlDriverURI(cfg.ConfigInst.Dev.Mysql.DBRootUser, cfg.ConfigInst.Dev.Mysql.DBHost, cfg.ConfigInst.Dev.Mysql.DBRootPassword, cfg.ConfigInst.Dev.Mysql.Port, cfg.ConfigInst.Dev.Mysql.DBName)
 	}
+	createTables(&cfg.ConfigInst, connStringWithoutDB, connStringWithDB)
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	orm.RegisterDataBase("default", "mysql", connString)
+	orm.RegisterDataBase("default", "mysql", connStringWithDB)
 }
 
-func createTables(configs *cfg.Configs) {
+func createTables(configs *cfg.Configs, connStringWithoutDB, connStringWithDB string) {
 	var err error
 	createdbStmt := "CREATE DATABASE IF NOT EXISTS wecare;"
-	mysqlUri := mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, "")
-	db, err := sql.Open("mysql", mysqlUri)
+	db, err := sql.Open("mysql", connStringWithoutDB)
 	defer db.Close()
 	if _, err = db.Exec(createdbStmt); err != nil {
 		fmt.Println(err)
 		return
 	}
-	mysqlUri = mysqlDriverURI(configs.Dev.Mysql.DBRootUser, configs.Dev.Mysql.DBHost, configs.Dev.Mysql.DBRootPassword, configs.Dev.Mysql.Port, configs.Dev.Mysql.DBName)
-	db, err = sql.Open("mysql", mysqlUri)
+	db, err = sql.Open("mysql", connStringWithDB)
 	for _, query := range createTableQueries {
 		_, err = db.Exec(query)
 		if err != nil {

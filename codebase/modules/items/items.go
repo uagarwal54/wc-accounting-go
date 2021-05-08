@@ -33,60 +33,11 @@ type (
 	}
 )
 
-// This function uses multi insert of beego to insert multiple records inside the item table.
-// We wrote this function and then decided not to use it for the time being as at that time we felt that having single
-// inserts into the table would suffice
-func addMultipleItemsInItemAtOnce(w http.ResponseWriter, r *http.Request) {
-	var err error
-	var IList model.Items
-	if err = json.Unmarshal(readRequestData(w, r), &IList); err != nil {
-		fmt.Println(err)
-	}
-	var numberOfRows int
-	var addItemRespInst itemResponseToBeSent
-	var finalItemList model.Items
-
-	numberOfRows, err = model.CountItemRows()
-	for _, item := range IList.ItemList {
-		var itemRespInst itemResponse
-		numberOfRows = numberOfRows + 1
-		item.ItemId = "iid_" + strconv.Itoa(numberOfRows)
-		finalItemList.ItemList = append(finalItemList.ItemList, item)
-		itemRespInst.ItemName = item.ItemName
-		itemRespInst.ItemCategory = item.ItemCategory
-		itemRespInst.ItemId = item.ItemId
-		itemRespInst.Message = "Added the item to DB store"
-		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemRespInst)
-	}
-	if err = finalItemList.InsertRecordsIntoItem(); err != nil {
-		fmt.Println("Error while inserting the item data: ", finalItemList.ItemList)
-		fmt.Println("Error: ", err)
-		addItemRespInst.Message = "Something went wrong while storing the items"
-		addItemRespInst.StatusCode = http.StatusBadRequest
-		for _, itemRsponseObj := range addItemRespInst.ItemStatus {
-			if strings.Contains(err.Error(), itemRsponseObj.ItemName) {
-				if strings.Contains(err.Error(), "Duplicate entry") {
-					itemRsponseObj.Message = "The item already exists with us"
-				} else {
-					itemRsponseObj.Message = err.Error()
-				}
-			} else {
-				itemRsponseObj.Message = "Item not stored"
-			}
-		}
-	} else {
-		addItemRespInst.Message = "All the above items are inserted into the database"
-		addItemRespInst.StatusCode = http.StatusOK
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(addItemRespInst)
-}
-
 func storeItem(inputItem *model.Item) (itemId string, err error) {
 	var numberOfRows int
 	numberOfRows, err = model.CountItemRows()
 	numberOfRows = numberOfRows + 1
-	itemId = "iid_" + strconv.Itoa(numberOfRows)
+	itemId = model.ConfigMap[cfg.ConfigInst.IidSuffix].(string) + strconv.Itoa(numberOfRows)
 	inputItem.ItemId = itemId
 	if err = inputItem.InsertRecordIntoItem(); err != nil {
 		return
@@ -108,16 +59,16 @@ func storeMultipleItemsWithSingleInsertForEachItem(w http.ResponseWriter, r *htt
 		if itemRespInst.ItemId, err = storeItem(&item); err != nil {
 			fmt.Println("Error while inserting the item data: ", item)
 			fmt.Println("Error: ", err)
-			addItemRespInst.Message = "Something went wrong while storing the items"
+			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemInsertionErrorMsgMarker].(string)
 			addItemRespInst.StatusCode = http.StatusBadRequest
-			if strings.Contains(err.Error(), "Duplicate entry") {
-				itemRespInst.Message = "The item already exists with us"
+			if strings.Contains(err.Error(), model.ConfigMap[cfg.ConfigInst.DuplicateEntryMsg].(string)) {
+				itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemAlreadyExistsMsg].(string)
 			} else {
 				itemRespInst.Message = err.Error()
 			}
 		} else {
-			itemRespInst.Message = "Added the item to DB store"
-			addItemRespInst.Message = "The above item is stored with us now"
+			itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
+			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemsInsertionMsg].(string)
 			addItemRespInst.StatusCode = http.StatusOK
 		}
 		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemRespInst)
@@ -140,16 +91,16 @@ func storeSingleItem(w http.ResponseWriter, r *http.Request) {
 	if addItemRespInst.ItemStatus[0].ItemId, err = storeItem(&inputItem); err != nil {
 		fmt.Println("Error while inserting the item data: ", inputItem)
 		fmt.Println("Error: ", err)
-		addItemRespInst.Message = "Something went wrong while storing the items"
+		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemInsertionErrorMsgMarker].(string)
 		addItemRespInst.StatusCode = http.StatusBadRequest
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			addItemRespInst.ItemStatus[0].Message = "The item already exists with us"
+		if strings.Contains(err.Error(), model.ConfigMap[cfg.ConfigInst.DuplicateEntryMsg].(string)) {
+			addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.ItemAlreadyExistsMsg].(string)
 		} else {
 			addItemRespInst.ItemStatus[0].Message = err.Error()
 		}
 	} else {
-		addItemRespInst.ItemStatus[0].Message = "Added the item to DB store"
-		addItemRespInst.Message = "The above item is stored with us now"
+		addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
+		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
 		addItemRespInst.StatusCode = http.StatusOK
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -162,45 +113,45 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 	var fetchItemResponseInst itemResponseToBeSent
 	var itemResponseList []itemResponse
 
-	if _, found := fetchRequestData[cfg.ConfigInst.Dev.ItemName]; found {
-		fetchItemResponseInst.Message = "Processed the request using the item names"
-		for _, itemName := range fetchRequestData[cfg.ConfigInst.Dev.ItemName].([]interface{}) {
-			if strings.ToLower(itemName.(string)) == "all" {
+	if _, found := fetchRequestData[cfg.ConfigInst.ItemName]; found {
+		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ProccessedFetchItemsRequestByName].(string)
+		for _, itemName := range fetchRequestData[cfg.ConfigInst.ItemName].([]interface{}) {
+			if strings.ToLower(itemName.(string)) == model.ConfigMap[cfg.ConfigInst.FilterAll].(string) {
 				itemListModel := &model.Items{}
-				message := "Items Found"
+				message := model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string)
 				if err := itemListModel.ReadAllItemData(); err != nil {
 					fmt.Println(err)
-					message = "Item Not Found. Some error occoured while fetching the items."
+					message = model.ConfigMap[cfg.ConfigInst.ItemNotFoundErrorDuringFetchingMsg].(string)
 				}
 				for _, itemInst := range itemListModel.ItemList {
 					if itemInst.ItemName == "" {
-						message = "Item Name not found"
+						message = model.ConfigMap[cfg.ConfigInst.ItemNameNotFoundMsg].(string)
 					} else if itemInst.ItemCategory == 0 {
-						message = "Item category not found"
+						message = model.ConfigMap[cfg.ConfigInst.ItemCategoryNotFoundMsg].(string)
 					} else if itemInst.ItemId == "" {
-						message = "Item Id not found"
+						message = model.ConfigMap[cfg.ConfigInst.ItemIdNotFoundMsg].(string)
 					}
 					// Not including the item name in this cond because it is passed from the user so mostly it would be there
 					if itemInst.ItemCategory == 0 && itemInst.ItemId == "" {
-						message = "Item Data not found"
+						message = model.ConfigMap[cfg.ConfigInst.ItemDataNotFoundMsg].(string)
 					}
 					populateResponseItemList(&itemResponseList, &itemInst, message)
 				}
 				break // Come out of the outer most for loop
 			} else {
-				message := "Item Found"
+				message := model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string)
 				itemInst := &model.Item{}
 				itemInst.ItemName = itemName.(string)
 				if err := itemInst.ReadItemByName(); err != nil {
 					fmt.Println(err)
-					message = "Item Not Found. Please check the info passed in the request."
+					message = model.ConfigMap[cfg.ConfigInst.WrongInputToFetchItems].(string)
 				}
 				populateResponseItemList(&itemResponseList, itemInst, message)
 			}
 		}
-	} else if _, found := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]; found {
-		fetchItemResponseInst.Message = "Processed the request using the item category"
-		desiredCategory := fetchRequestData[cfg.ConfigInst.Dev.ItemCategory]
+	} else if _, found := fetchRequestData[cfg.ConfigInst.ItemCategory]; found {
+		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ProccessedFetchItemsRequestByCategory].(string)
+		desiredCategory := fetchRequestData[cfg.ConfigInst.ItemCategory]
 		fetchedItemList := &model.Items{}
 		if err := fetchedItemList.ReadAllItemsInACategory(int(desiredCategory.(float64))); err != nil {
 			fmt.Println(err)
@@ -210,10 +161,10 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, fetchedItem := range fetchedItemList.ItemList {
-			populateResponseItemList(&itemResponseList, &fetchedItem, "Item Found")
+			populateResponseItemList(&itemResponseList, &fetchedItem, model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string))
 		}
 	} else {
-		fetchItemResponseInst.Message = "Passed wrong json key in JSON request"
+		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.WrongJSONKeyInRequest].(string)
 		fetchItemResponseInst.StatusCode = http.StatusBadRequest
 	}
 	fetchItemResponseInst.StatusCode = http.StatusOK
@@ -234,12 +185,12 @@ func updateItems(w http.ResponseWriter, r *http.Request) {
 		itemResponseInst.ItemName = item.ItemName
 		itemResponseInst.ItemId = item.ItemId
 		itemResponseInst.ItemCategory = item.ItemCategory
-		itemResponseInst.Message = "Item is updated successfully"
+		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemUpdationMsg].(string)
 
 		if err = itemPtr.UpdateRecord(); err != nil {
 			fmt.Println("Error occoured while updating item: ", item)
 			fmt.Println(err)
-			itemResponseInst.Message = "Item failed to be updated. Please check the data provided. Error: " + err.Error()
+			itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.FailedItemUpdationDueToWrongInput].(string) + err.Error()
 		}
 		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemResponseInst)
 	}
@@ -255,10 +206,10 @@ func deleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 	var itemResponseInst itemResponse
 	itemResponseInst.ItemId = inputItem.ItemId
-	itemResponseInst.Message = "Item with the above id has been deleted"
+	itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ItemSuccessfullDeletetionMsg].(string)
 	if err = inputItem.DeleteRecords(); err != nil {
 		fmt.Println(err)
-		itemResponseInst.Message = "Some problem occoured while deleting the item. Error: " + err.Error()
+		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ItemDeletetionFailourMsg].(string) + err.Error()
 	}
 	json.NewEncoder(w).Encode(itemResponseInst)
 }
@@ -275,17 +226,14 @@ func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
 func decideOp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		fetchItems(w, r)
-	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt" {
-		// Unused function
-		addMultipleItemsInItemAtOnce(w, r)
-	} else if r.Method == http.MethodPut {
+	} else if r.Method == http.MethodPatch {
 		updateItems(w, r)
 	} else if r.Method == http.MethodDelete {
 		deleteItem(w, r)
-	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt/storeItem" {
+	} else if r.Method == http.MethodPut && r.URL.Path == cfg.ConfigInst.Dev.BackendUrls.SingleItemStoreUrl {
 		// store single item
 		storeSingleItem(w, r)
-	} else if r.Method == http.MethodPost && r.URL.Path == "/itemMgmt/storeItems" {
+	} else if r.Method == http.MethodPut && r.URL.Path == cfg.ConfigInst.Dev.BackendUrls.MultipleItemStoreUrl {
 		// store multiple items
 		storeMultipleItemsWithSingleInsertForEachItem(w, r)
 	}
@@ -302,7 +250,7 @@ func populateResponseItemList(itemResponseList *[]itemResponse, ItemInst *model.
 }
 
 func AddItemRoutes(router *mux.Router) {
-	router.HandleFunc("/itemMgmt", decideOp)
-	router.HandleFunc("/itemMgmt/storeItem", decideOp)
-	router.HandleFunc("/itemMgmt/storeItems", decideOp)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.ItemMgmtBaseUrl, decideOp)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.SingleItemStoreUrl, decideOp)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.MultipleItemStoreUrl, decideOp)
 }

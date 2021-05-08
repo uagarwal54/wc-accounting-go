@@ -21,19 +21,14 @@ const (
 
 func main() {
 	fmt.Println("My Simple Server")
+	makeDbConnection()
+	model.PopulateConfigMap()
 	handleRequests()
 }
 
 func handleRequests() {
-	var err error
-	if cfg.ConfigInst, err = cfg.GetConfigs(configFilePath); err != nil {
-		fmt.Println(err)
-		return
-	}
-	model.DbConnect(&cfg.ConfigInst, env)
 	router := mux.NewRouter()
-
-	// The headers, methods and domains from with/from which the requests can be accepted
+	// These are the headers, methods and domains from with/from which the requests can be accepted
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Autherization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	origins := handlers.AllowedOrigins([]string{"*"})
@@ -41,4 +36,13 @@ func handleRequests() {
 	login.AddLoginRoute(router)
 	items.AddItemRoutes(router)
 	log.Fatal(http.ListenAndServe(":9001", handlers.CORS(headers, methods, origins)(router)))
+}
+
+func makeDbConnection() {
+	var err error
+	if err = cfg.GetConfigsFromConfigFile(configFilePath); err != nil {
+		fmt.Println(err)
+		return
+	}
+	model.DbConnect(env)
 }
