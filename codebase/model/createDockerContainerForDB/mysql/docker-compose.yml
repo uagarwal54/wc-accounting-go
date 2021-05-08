@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+  mysql1:
+    image: mysql-cluster
+    command: mysqld
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=13BCA006@shiats
+      - MYSQL_ROOT_HOST=%

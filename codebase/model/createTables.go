@@ -10,18 +10,23 @@ var createTableQueries = []string{
 		registrationDate datetime,
 		password varchar(30),
 		firstLogin int(1));`,
-	
+
 	`create table IF NOT EXISTS config ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
-		configKey varchar(30),
-		configValue  varchar(30));`,
+		configKey varchar(300),
+		configValue  varchar(300));`,
 
 	`create table IF NOT EXISTS item ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
 		itemId varchar(30),
-		itemName varchar(30),
-		itemCategory varchar(30));`,
-	
+		itemName varchar(30) unique,
+		itemCategory int(10));`,
+
+	`create table IF NOT EXISTS itemCategory ( 
+		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
+		categoryId varchar(30),
+		categoryName varchar(30));`,
+
 	`create table IF NOT EXISTS purchase ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
 		purchaseId varchar(30),
