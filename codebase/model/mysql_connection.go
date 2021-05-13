@@ -32,13 +32,29 @@ func createTables(configs *cfg.Configs, connStringWithoutDB, connStringWithDB st
 		return
 	}
 	db, err = sql.Open("mysql", connStringWithDB)
+	fmt.Print("Creating Tables.")
 	for _, query := range createTableQueries {
+		fmt.Print(".")
 		_, err = db.Exec(query)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
+	fmt.Println("")
+	fmt.Print("Inserting configs into the config table.")
+	insertDataIntoConfigTable(db)
 	return
+}
+
+func insertDataIntoConfigTable(db *sql.DB) {
+	insertQuery := "insert into `config` (configKey, configValue) values (\"%s\",\"%s\");"
+	for cKey, cValue := range configMap {
+		fmt.Print(".")
+		_, err := db.Exec(fmt.Sprintf(insertQuery, cKey, cValue))
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 // Construct a mysql protocol URI. The <dbname> parameter should be empty string when creating/dropping databases.
