@@ -43,30 +43,35 @@ var createTableQueries = []string{
 }
 
 var configMap = map[string]string{
-	"purchaseRoundOffDirection":             "ceil",
+
+	// General Configs
+	"roundOffDirection":              "ceil",
+	"insertionErrorMsgMarker":        "Something went wrong while storing the object in data store",
+	"duplicateEntryMsg":              "Duplicate entry",
+	"alreadyExistsMsg":               "The object already exists with us",
+	"storageFailourMsg":              "Object not stored",
+	"proccessedFetchRequestByName":   "Processed the request using the object names",
+	"notFoundErrorDuringFetchingMsg": "Object Not Found. Some error occoured while fetching the objects.",
+	"objectFoundMsg":                 "Object(s) Found",
+	"wrongInputToFetchObjects":       "Object Not Found. Please check the info passed in the request.",
+	"wrongJSONKeyInRequest":          "Passed wrong json key in JSON request",
+	"filterAll":                      "all",
+
+	// CRUD Ops Configs
+	"successfullInsertionMsg":       "All the above object(s) are inserted into the database",
+	"successfullUpdationMsg":        "Object is updated successfully",
+	"updationErrorMsg":              "Error occoured while updating object: ",
+	"failedUpdationDueToWrongInput": "Object failed to be updated. Please check the data provided. Error: ",
+	"successfullDeletetionMsg":      "Object with the above id has been deleted",
+	"deletetionFailourMsg":          "Some problem occoured while deleting the object. Error: ",
+
+	// Some Item specific configs
+	"iidSuffix":                             "iid_",
 	"itemName":                              "itemName",
 	"itemCategory":                          "itemCategory",
-	"itemInsertionErrorMsgMarker":           "Something went wrong while storing the items",
-	"duplicateEntryMsg":                     "Duplicate entry",
-	"itemAlreadyExistsMsg":                  "The item already exists with us",
-	"itemStorageFailourMsg":                 "Item not stored",
-	"successfullItemsInsertionMsg":          "All the above items are inserted into the database",
-	"successfullItemInsertionMsg":           "Added the item to DB store",
-	"proccessedFetchItemsRequestByName":     "Processed the request using the item names",
-	"itemNotFoundErrorDuringFetchingMsg":    "Item Not Found. Some error occoured while fetching the items.",
-	"itemFoundMsg":                          "Item(s) Found",
 	"itemCategoryNotFoundMsg":               "Item category not found",
 	"itemIdNotFoundMsg":                     "Item Id not found",
 	"itemNameNotFoundMsg":                   "Item Name not found",
 	"itemDataNotFoundMsg":                   "Item Data not found",
-	"wrongInputToFetchItems":                "Item Not Found. Please check the info passed in the request.",
 	"proccessedFetchItemsRequestByCategory": "Processed the request using the item category",
-	"wrongJSONKeyInRequest":                 "Passed wrong json key in JSON request",
-	"successfullItemUpdationMsg":            "Item is updated successfully",
-	"itemUpdationErrorMsg":                  "Error occoured while updating item: ",
-	"failedItemUpdationDueToWrongInput":     "Item failed to be updated. Please check the data provided. Error: ",
-	"itemSuccessfullDeletetionMsg":          "Item with the above id has been deleted",
-	"itemDeletetionFailourMsg":              "Some problem occoured while deleting the item. Error: ",
-	"filterAll":                             "all",
-	"iidSuffix":                             "iid_",
 }

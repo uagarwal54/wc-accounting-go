@@ -59,16 +59,16 @@ func storeMultipleItemsWithSingleInsertForEachItem(w http.ResponseWriter, r *htt
 		if itemRespInst.ItemId, err = storeItem(&item); err != nil {
 			fmt.Println("Error while inserting the item data: ", item)
 			fmt.Println("Error: ", err)
-			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemInsertionErrorMsgMarker].(string)
+			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.InsertionErrorMsgMarker].(string)
 			addItemRespInst.StatusCode = http.StatusBadRequest
 			if strings.Contains(err.Error(), model.ConfigMap[cfg.ConfigInst.DuplicateEntryMsg].(string)) {
-				itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemAlreadyExistsMsg].(string)
+				itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.AlreadyExistsMsg].(string)
 			} else {
 				itemRespInst.Message = err.Error()
 			}
 		} else {
-			itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
-			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemsInsertionMsg].(string)
+			itemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullInsertionMsg].(string)
+			addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullInsertionMsg].(string)
 			addItemRespInst.StatusCode = http.StatusOK
 		}
 		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemRespInst)
@@ -91,16 +91,16 @@ func storeSingleItem(w http.ResponseWriter, r *http.Request) {
 	if addItemRespInst.ItemStatus[0].ItemId, err = storeItem(&inputItem); err != nil {
 		fmt.Println("Error while inserting the item data: ", inputItem)
 		fmt.Println("Error: ", err)
-		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.ItemInsertionErrorMsgMarker].(string)
+		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.InsertionErrorMsgMarker].(string)
 		addItemRespInst.StatusCode = http.StatusBadRequest
 		if strings.Contains(err.Error(), model.ConfigMap[cfg.ConfigInst.DuplicateEntryMsg].(string)) {
-			addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.ItemAlreadyExistsMsg].(string)
+			addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.AlreadyExistsMsg].(string)
 		} else {
 			addItemRespInst.ItemStatus[0].Message = err.Error()
 		}
 	} else {
-		addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
-		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemInsertionMsg].(string)
+		addItemRespInst.ItemStatus[0].Message = model.ConfigMap[cfg.ConfigInst.SuccessfullInsertionMsg].(string)
+		addItemRespInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullInsertionMsg].(string)
 		addItemRespInst.StatusCode = http.StatusOK
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -114,14 +114,14 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 	var itemResponseList []itemResponse
 
 	if _, found := fetchRequestData[cfg.ConfigInst.ItemName]; found {
-		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ProccessedFetchItemsRequestByName].(string)
+		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ProccessedFetchRequestByName].(string)
 		for _, itemName := range fetchRequestData[cfg.ConfigInst.ItemName].([]interface{}) {
 			if strings.ToLower(itemName.(string)) == model.ConfigMap[cfg.ConfigInst.FilterAll].(string) {
 				itemListModel := &model.Items{}
-				message := model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string)
+				message := model.ConfigMap[cfg.ConfigInst.ObjectFoundMsg].(string)
 				if err := itemListModel.ReadAllItemData(); err != nil {
 					fmt.Println(err)
-					message = model.ConfigMap[cfg.ConfigInst.ItemNotFoundErrorDuringFetchingMsg].(string)
+					message = model.ConfigMap[cfg.ConfigInst.NotFoundErrorDuringFetchingMsg].(string)
 				}
 				for _, itemInst := range itemListModel.ItemList {
 					if itemInst.ItemName == "" {
@@ -139,12 +139,12 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 				}
 				break // Come out of the outer most for loop
 			} else {
-				message := model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string)
+				message := model.ConfigMap[cfg.ConfigInst.ObjectFoundMsg].(string)
 				itemInst := &model.Item{}
 				itemInst.ItemName = itemName.(string)
 				if err := itemInst.ReadItemByName(); err != nil {
 					fmt.Println(err)
-					message = model.ConfigMap[cfg.ConfigInst.WrongInputToFetchItems].(string)
+					message = model.ConfigMap[cfg.ConfigInst.WrongInputToFetchObjects].(string)
 				}
 				populateResponseItemList(&itemResponseList, itemInst, message)
 			}
@@ -161,7 +161,7 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, fetchedItem := range fetchedItemList.ItemList {
-			populateResponseItemList(&itemResponseList, &fetchedItem, model.ConfigMap[cfg.ConfigInst.ItemFoundMsg].(string))
+			populateResponseItemList(&itemResponseList, &fetchedItem, model.ConfigMap[cfg.ConfigInst.ObjectFoundMsg].(string))
 		}
 	} else {
 		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.WrongJSONKeyInRequest].(string)
@@ -185,12 +185,12 @@ func updateItems(w http.ResponseWriter, r *http.Request) {
 		itemResponseInst.ItemName = item.ItemName
 		itemResponseInst.ItemId = item.ItemId
 		itemResponseInst.ItemCategory = item.ItemCategory
-		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullItemUpdationMsg].(string)
+		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullUpdationMsg].(string)
 
 		if err = itemPtr.UpdateRecord(); err != nil {
 			fmt.Println("Error occoured while updating item: ", item)
 			fmt.Println(err)
-			itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.FailedItemUpdationDueToWrongInput].(string) + err.Error()
+			itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.FailedUpdationDueToWrongInput].(string) + err.Error()
 		}
 		addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemResponseInst)
 	}
@@ -206,10 +206,10 @@ func deleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 	var itemResponseInst itemResponse
 	itemResponseInst.ItemId = inputItem.ItemId
-	itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ItemSuccessfullDeletetionMsg].(string)
+	itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullDeletetionMsg].(string)
 	if err = inputItem.DeleteRecords(); err != nil {
 		fmt.Println(err)
-		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ItemDeletetionFailourMsg].(string) + err.Error()
+		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.DeletetionFailourMsg].(string) + err.Error()
 	}
 	json.NewEncoder(w).Encode(itemResponseInst)
 }

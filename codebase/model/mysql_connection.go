@@ -55,6 +55,7 @@ func insertDataIntoConfigTable(db *sql.DB) {
 			fmt.Println(err)
 		}
 	}
+	fmt.Println(".")
 }
 
 // Construct a mysql protocol URI. The <dbname> parameter should be empty string when creating/dropping databases.

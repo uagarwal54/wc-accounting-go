@@ -1,3 +1,6 @@
+// This file reads the configs from the cfg.json file and feeds them into the struct
+// There are some configs that are not stored in the DB and are only stored in the cfg file. Those and the keys of the configs
+// stored in the DB can be accessed from here
 package cfg
 
 import (
@@ -11,26 +14,25 @@ type (
 		ItemName                              string     `json:"item_name"`
 		ItemCategory                          string     `json:"item_category"`
 		PurchaseRoundOffDirection             string     `json:"purchase_round_off_direction"`
-		ItemInsertionErrorMsgMarker           string     `json:"item_insertion_error_msg_marker"`
+		InsertionErrorMsgMarker               string     `json:"insertion_error_msg_marker"`
 		DuplicateEntryMsg                     string     `json:"duplicate_entry_msg"`
-		ItemAlreadyExistsMsg                  string     `json:"item_already_existsMsg"`
-		ItemStorageFailourMsg                 string     `json:"item_storage_failour_msg"`
-		SuccessfullItemsInsertionMsg          string     `json:"successfull_items_insertion_msg"`
-		SuccessfullItemInsertionMsg           string     `json:"successfull_item_insertion_msg"`
-		ProccessedFetchItemsRequestByName     string     `json:"proccessed_fetch_items_request_by_name"`
-		ItemNotFoundErrorDuringFetchingMsg    string     `json:"item_not_found_error_during_fetching_msg"`
-		ItemFoundMsg                          string     `json:"item_found_msg"`
+		AlreadyExistsMsg                      string     `json:"already_exists_msg"`
+		StorageFailourMsg                     string     `json:"storage_failour_msg"`
+		SuccessfullInsertionMsg               string     `json:"successfull_insertion_msg"`
+		ProccessedFetchRequestByName          string     `json:"proccessed_fetch_request_by_name"`
+		NotFoundErrorDuringFetchingMsg        string     `json:"not_found_error_during_fetching_msg"`
+		ObjectFoundMsg                        string     `json:"object_found_msg"`
 		ItemCategoryNotFoundMsg               string     `json:"item_category_not_found_msg"`
 		ItemIdNotFoundMsg                     string     `json:"item_id_not_found_msg"`
 		ItemDataNotFoundMsg                   string     `json:"item_data_not_found_msg"`
-		WrongInputToFetchItems                string     `json:"wrong_input_to_fetch_items"`
+		WrongInputToFetchObjects              string     `json:"wrong_input_to_fetch_objects"`
 		ProccessedFetchItemsRequestByCategory string     `json:"proccessed_fetch_items_request_by_category"`
 		WrongJSONKeyInRequest                 string     `json:"wrong_JSON_key_in_request"`
-		SuccessfullItemUpdationMsg            string     `json:"successfull_item_updation_msg"`
-		ItemUpdationErrorMsg                  string     `json:"item_updation_error_msg"`
-		FailedItemUpdationDueToWrongInput     string     `json:"failed_item_updation_due_to_wrong_input"`
-		ItemSuccessfullDeletetionMsg          string     `json:"item_successfull_deletetion_msg"`
-		ItemDeletetionFailourMsg              string     `json:"item_deletetion_failour_msg"`
+		SuccessfullUpdationMsg                string     `json:"successfull_updation_msg"`
+		UpdationErrorMsg                      string     `json:"updation_error_msg"`
+		FailedUpdationDueToWrongInput         string     `json:"failed_updation_due_to_wrong_input"`
+		SuccessfullDeletetionMsg              string     `json:"successfull_deletetion_msg"`
+		DeletetionFailourMsg                  string     `json:"deletetion_failour_msg"`
 		ItemNameNotFoundMsg                   string     `json:"item_name_not_found_msg"`
 		FilterAll                             string     `json:"filter_all"`
 		IidSuffix                             string     `json:"iid_suffix"`
@@ -50,6 +52,7 @@ type (
 		ItemMgmtBaseUrl      string `json:"item_mgmt_base_url"`
 		SingleItemStoreUrl   string `json:"single_item_store_url"`
 		MultipleItemStoreUrl string `json:"multiple_item_store_url"`
+		CategoryMgmtBaseUrl  string `json:"category_mgmt_base_url"`
 	}
 )
 
