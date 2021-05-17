@@ -169,17 +169,6 @@ func deleteCategory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(categoryResponseInst)
 }
 
-/*
-func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
-	var err error
-	if bodyData, err = ioutil.ReadAll(r.Body); err != nil {
-		w.Write([]byte("Error while reading the request"))
-		return
-	}
-	return (bodyData)
-}
-*/
-
 func decideOpForCategories(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		fetchCategories(w, r)
