@@ -22,7 +22,7 @@ var createTableQueries = []string{
 		itemName varchar(30) unique,
 		itemCategory int(10));`,
 
-	`create table IF NOT EXISTS itemCategory ( 
+	`create table IF NOT EXISTS itemcategory ( 
 		srNum  int(10) PRIMARY KEY AUTO_INCREMENT,
 		categoryId varchar(30),
 		categoryName varchar(30));`,
@@ -66,7 +66,7 @@ var configMap = map[string]string{
 	"deletetionFailourMsg":          "Some problem occoured while deleting the object. Error: ",
 
 	// Some Item specific configs
-	"iidSuffix":                             "iid_",
+	"iidPrefix":                             "iid_",
 	"itemName":                              "itemName",
 	"itemCategory":                          "itemCategory",
 	"itemCategoryNotFoundMsg":               "Item category not found",
@@ -74,4 +74,12 @@ var configMap = map[string]string{
 	"itemNameNotFoundMsg":                   "Item Name not found",
 	"itemDataNotFoundMsg":                   "Item Data not found",
 	"proccessedFetchItemsRequestByCategory": "Processed the request using the item category",
+
+	// Some Itemcategory specific configs
+	"cidPrefix":               "cid_",
+	"categoryName":            "categoryName",
+	"categoryId":              "categoryId",
+	"categoryNameNotFoundMsg": "Category name not found",
+	"categoryIdNotFoundMsg":   "Category id not found",
+	"categoryDataNotFoundMsg": "Category data not found",
 }

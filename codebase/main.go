@@ -35,6 +35,8 @@ func handleRequests() {
 
 	login.AddLoginRoute(router)
 	items.AddItemRoutes(router)
+	items.AddCategoryRoutes(router)
+
 	log.Fatal(http.ListenAndServe(":9001", handlers.CORS(headers, methods, origins)(router)))
 }
 

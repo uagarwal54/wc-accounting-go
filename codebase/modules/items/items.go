@@ -27,7 +27,7 @@ type (
 	//so that only the desired fields are exposed to the user
 	itemResponse struct {
 		ItemName     string `json: "itemname,omitempty"`
-		ItemCategory int    `json: "itemcategory,omitempty"`
+		Itemcategory int    `json: "itemcategory,omitempty"`
 		ItemId       string `json: "itemid,omitempty"`
 		Message      string `json: "message,omitempty"`
 	}
@@ -37,7 +37,7 @@ func storeItem(inputItem *model.Item) (itemId string, err error) {
 	var numberOfRows int
 	numberOfRows, err = model.CountItemRows()
 	numberOfRows = numberOfRows + 1
-	itemId = model.ConfigMap[cfg.ConfigInst.IidSuffix].(string) + strconv.Itoa(numberOfRows)
+	itemId = model.ConfigMap[cfg.ConfigInst.IidPrefix].(string) + strconv.Itoa(numberOfRows)
 	inputItem.ItemId = itemId
 	if err = inputItem.InsertRecordIntoItem(); err != nil {
 		return
@@ -55,7 +55,7 @@ func storeMultipleItemsWithSingleInsertForEachItem(w http.ResponseWriter, r *htt
 	for _, item := range IList.ItemList {
 		var itemRespInst itemResponse
 		itemRespInst.ItemName = item.ItemName
-		itemRespInst.ItemCategory = item.ItemCategory
+		itemRespInst.Itemcategory = item.Itemcategory
 		if itemRespInst.ItemId, err = storeItem(&item); err != nil {
 			fmt.Println("Error while inserting the item data: ", item)
 			fmt.Println("Error: ", err)
@@ -86,7 +86,7 @@ func storeSingleItem(w http.ResponseWriter, r *http.Request) {
 	var addItemRespInst itemResponseToBeSent
 	var itemRespInst itemResponse
 	itemRespInst.ItemName = inputItem.ItemName
-	itemRespInst.ItemCategory = inputItem.ItemCategory
+	itemRespInst.Itemcategory = inputItem.Itemcategory
 	addItemRespInst.ItemStatus = append(addItemRespInst.ItemStatus, itemRespInst)
 	if addItemRespInst.ItemStatus[0].ItemId, err = storeItem(&inputItem); err != nil {
 		fmt.Println("Error while inserting the item data: ", inputItem)
@@ -126,13 +126,13 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 				for _, itemInst := range itemListModel.ItemList {
 					if itemInst.ItemName == "" {
 						message = model.ConfigMap[cfg.ConfigInst.ItemNameNotFoundMsg].(string)
-					} else if itemInst.ItemCategory == 0 {
+					} else if itemInst.Itemcategory == 0 {
 						message = model.ConfigMap[cfg.ConfigInst.ItemCategoryNotFoundMsg].(string)
 					} else if itemInst.ItemId == "" {
 						message = model.ConfigMap[cfg.ConfigInst.ItemIdNotFoundMsg].(string)
 					}
 					// Not including the item name in this cond because it is passed from the user so mostly it would be there
-					if itemInst.ItemCategory == 0 && itemInst.ItemId == "" {
+					if itemInst.Itemcategory == 0 && itemInst.ItemId == "" {
 						message = model.ConfigMap[cfg.ConfigInst.ItemDataNotFoundMsg].(string)
 					}
 					populateResponseItemList(&itemResponseList, &itemInst, message)
@@ -149,9 +149,9 @@ func fetchItems(w http.ResponseWriter, r *http.Request) {
 				populateResponseItemList(&itemResponseList, itemInst, message)
 			}
 		}
-	} else if _, found := fetchRequestData[cfg.ConfigInst.ItemCategory]; found {
+	} else if _, found := fetchRequestData[cfg.ConfigInst.Itemcategory]; found {
 		fetchItemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.ProccessedFetchItemsRequestByCategory].(string)
-		desiredCategory := fetchRequestData[cfg.ConfigInst.ItemCategory]
+		desiredCategory := fetchRequestData[cfg.ConfigInst.Itemcategory]
 		fetchedItemList := &model.Items{}
 		if err := fetchedItemList.ReadAllItemsInACategory(int(desiredCategory.(float64))); err != nil {
 			fmt.Println(err)
@@ -184,7 +184,7 @@ func updateItems(w http.ResponseWriter, r *http.Request) {
 		var itemResponseInst itemResponse
 		itemResponseInst.ItemName = item.ItemName
 		itemResponseInst.ItemId = item.ItemId
-		itemResponseInst.ItemCategory = item.ItemCategory
+		itemResponseInst.Itemcategory = item.Itemcategory
 		itemResponseInst.Message = model.ConfigMap[cfg.ConfigInst.SuccessfullUpdationMsg].(string)
 
 		if err = itemPtr.UpdateRecord(); err != nil {
@@ -223,7 +223,7 @@ func readRequestData(w http.ResponseWriter, r *http.Request) (bodyData []byte) {
 	return (bodyData)
 }
 
-func decideOp(w http.ResponseWriter, r *http.Request) {
+func decideOpForItems(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		fetchItems(w, r)
 	} else if r.Method == http.MethodPatch {
@@ -243,14 +243,14 @@ func decideOp(w http.ResponseWriter, r *http.Request) {
 func populateResponseItemList(itemResponseList *[]itemResponse, ItemInst *model.Item, message string) {
 	var tempItemResponseInst itemResponse
 	tempItemResponseInst.ItemName = ItemInst.ItemName
-	tempItemResponseInst.ItemCategory = ItemInst.ItemCategory
+	tempItemResponseInst.Itemcategory = ItemInst.Itemcategory
 	tempItemResponseInst.ItemId = ItemInst.ItemId
 	tempItemResponseInst.Message = message
 	*itemResponseList = append(*itemResponseList, tempItemResponseInst)
 }
 
 func AddItemRoutes(router *mux.Router) {
-	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.ItemMgmtBaseUrl, decideOp)
-	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.SingleItemStoreUrl, decideOp)
-	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.MultipleItemStoreUrl, decideOp)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.ItemMgmtBaseUrl, decideOpForItems)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.SingleItemStoreUrl, decideOpForItems)
+	router.HandleFunc(cfg.ConfigInst.Dev.BackendUrls.MultipleItemStoreUrl, decideOpForItems)
 }

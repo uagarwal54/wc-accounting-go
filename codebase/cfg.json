@@ -38,5 +38,11 @@
     "item_deletetion_failour_msg": "deletetionFailourMsg",
     "item_name_not_found_msg": "itemNameNotFoundMsg",
     "filter_all": "filterAll",
-    "iid_suffix": "iidSuffix"
+    "iid_suffix": "iidPrefix",
+    "cid_prefix": "cidPrefix",
+    "category_name": "categoryName",
+    "category_id": "categoryId",
+    "category_name_not_found_msg": "categoryNameNotFoundMsg",
+    "category_id_not_found_msg": "categoryIdNotFoundMsg",
+    "category_data_not_found_msg": "categoryDataNotFoundMsg"
 }

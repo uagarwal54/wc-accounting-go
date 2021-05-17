@@ -7,73 +7,72 @@ import (
 )
 
 type (
-	ItemCategory struct {
+	Itemcategory struct {
 		SrNum        int    `orm:"column(srNum);pk"`
 		CategoryId   string `orm:"column(categoryId)"`
 		CategoryName string `orm:"column(categoryName); unique"`
 	}
 	Categories struct {
-		CategoryList []ItemCategory
+		CategoryList []Itemcategory
 	}
 )
 
 func init() {
-	orm.RegisterModel(new(ItemCategory))
+	orm.RegisterModel(new(Itemcategory))
 }
 
 func (categories *Categories) ReadAllCategoryData() (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("itemCategory").All(&categories.CategoryList)
+	_, err = o.QueryTable("itemcategory").All(&categories.CategoryList)
 	return
 }
 
 // category name is a unique value
-func (categoryInst *ItemCategory) ReadCategoryByName() (err error) {
+func (categoryInst *Itemcategory) ReadCategoryByName() (err error) {
 	// orm.Debug = true
 	o := orm.NewOrm()
-	err = o.QueryTable("itemCategory").Filter("categoryName", categoryInst.CategoryName).One(categoryInst)
+	err = o.QueryTable("itemcategory").Filter("categoryName", categoryInst.CategoryName).One(categoryInst)
 	return
 }
 
 // Fetch category by category id
-func (categoryInst *ItemCategory) ReadCategoryByCategoryId() (err error) {
+func (categoryInst *Itemcategory) ReadCategoryByCategoryId() (err error) {
 	o := orm.NewOrm()
-	err = o.QueryTable("itemCategory").Filter("categoryId", categoryInst.CategoryId).One(&categoryInst)
+	err = o.QueryTable("itemcategory").Filter("categoryId", categoryInst.CategoryId).One(&categoryInst)
 	return
 }
 
-// Fetch the number of items in the `itemCategory` table
+// Fetch the number of items in the `itemcategory` table
 func CountCategoryRows() (numOfRows int, err error) {
 	o := orm.NewOrm()
-	err = o.Raw("select count(*) from itemCategory").QueryRow(&numOfRows)
+	err = o.Raw("select count(*) from itemcategory").QueryRow(&numOfRows)
 	return
 }
 
 // Insert single record into the item table at once
-func (category *ItemCategory) InsertRecordIntoItemCategory() (err error) {
+func (category *Itemcategory) InsertRecordIntoItemCategory() (err error) {
 	o := orm.NewOrm()
 	_, err = o.Insert(category)
 	return
 }
 
 // Update Item Record
-func (category *ItemCategory) UpdateRecord() (err error) {
+func (category *Itemcategory) UpdateRecord(newCategoryName string) (err error) {
 	// orm.Debug = true
-	var tempCategory ItemCategory
+	var tempCategory Itemcategory
 	tempCategory.CategoryName = category.CategoryName
-	tempCategory.CategoryId = category.CategoryId
 	o := orm.NewOrm()
-	if o.Read(&tempCategory, "categoryId") == nil || o.Read(&tempCategory, "categoryName") == nil {
-		tempCategory.SrNum = tempCategory.SrNum
-		_, err = o.Update(category)
+	if o.Read(&tempCategory, "categoryName") == nil {
+		tempCategory.CategoryName = newCategoryName
+		_, err = o.Update(&tempCategory)
 	}
 	return
 }
 
-func (category *ItemCategory) DeleteRecord() (err error) {
+func (category *Itemcategory) DeleteRecord() (err error) {
 	// orm.Debug = true
 	o := orm.NewOrm()
-	fmt.Println("Deleting the record with category id: ", category.CategoryId)
-	_, err = o.QueryTable("itemCategory").Filter("categoryId", category.CategoryId).Delete()
+	fmt.Println("Deleting the record with category name: ", category.CategoryName)
+	_, err = o.QueryTable("itemcategory").Filter("categoryName", category.CategoryName).Delete()
 	return
 }

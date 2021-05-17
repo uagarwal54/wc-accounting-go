@@ -12,7 +12,7 @@ type (
 	Configs struct {
 		Dev                                   DevConfigs `json:"dev"`
 		ItemName                              string     `json:"item_name"`
-		ItemCategory                          string     `json:"item_category"`
+		Itemcategory                          string     `json:"item_category"`
 		PurchaseRoundOffDirection             string     `json:"purchase_round_off_direction"`
 		InsertionErrorMsgMarker               string     `json:"insertion_error_msg_marker"`
 		DuplicateEntryMsg                     string     `json:"duplicate_entry_msg"`
@@ -35,7 +35,13 @@ type (
 		DeletetionFailourMsg                  string     `json:"deletetion_failour_msg"`
 		ItemNameNotFoundMsg                   string     `json:"item_name_not_found_msg"`
 		FilterAll                             string     `json:"filter_all"`
-		IidSuffix                             string     `json:"iid_suffix"`
+		IidPrefix                             string     `json:"iid_suffix"`
+		CidPrefix                             string     `json:"cid_prefix"`
+		CategoryName                          string     `json:"category_name"`
+		CategoryId                            string     `json:"category_id"`
+		CategoryNameNotFoundMsg               string     `json:"category_name_not_found_msg"`
+		CategoryIdNotFoundMsg                 string     `json:"category_id_not_found_msg"`
+		CategoryDataNotFoundMsg               string     `json:"category_data_not_found_msg"`
 	}
 	DevConfigs struct {
 		Mysql       MysqlConfigs        `json:"mysql"`

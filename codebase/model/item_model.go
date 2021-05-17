@@ -11,7 +11,7 @@ type (
 		SrNum        int    `orm:"column(srNum);pk"`
 		ItemId       string `orm:"column(itemId)"`
 		ItemName     string `orm:"column(itemName); unique"`
-		ItemCategory int    `orm:"column(itemCategory)"`
+		Itemcategory int    `orm:"column(itemCategory)"`
 	}
 	Items struct {
 		ItemList []Item
